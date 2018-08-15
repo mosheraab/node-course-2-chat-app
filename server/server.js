@@ -12,17 +12,25 @@ var io = socketIO(server);
 
 io.on('connection', (socket) => {
 	console.log('New user connected', JSON.stringify(socket.handshake.headers, undefined, 2));
-
+	
 	socket.emit('newMessage', {
-		from: 'moshe@example.com',
-		text: 'Hello. This is an email to you',
-		createdAt: 123 
+		from: 'Admin',
+		text: 'Welcome to the chat room',
+		createdAt: new Date().getTime()
+	});
+
+	socket.broadcast.emit('newMessage', {
+		from: 'Admin',
+		text: 'New <user> joined the chat room',
+		createdAt: new Date().getTime()
 	});
 	
 	socket.on('createdMessage', (message) => {
-		var checkedMessage = _.pick(message, ['from', 'text']);
-		checkedMessage.createdAt = new Date();
-		console.log('Creating new message from client: ', JSON.stringify(message, undefined, 2));
+		var outgoingMessage = _.pick(message, ['from', 'text']);
+		outgoingMessage.createdAt = new Date().getTime();
+		console.log('Creating new message from client: ', JSON.stringify(outgoingMessage, undefined, 2));
+		// io.emit('newMessage', outgoingMessage);
+		socket.broadcast.emit('newMessage', outgoingMessage);
 	});
 	
 	socket.on('disconnect', () => {

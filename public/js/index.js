@@ -12,12 +12,14 @@ socket.on('newMessage', function (message) {
 	console.log('New incoming message event:', message);
 })
 
-var createdMessage = {
-	from: "me",
-	text: "Hello to you"
-};
+// var createdMessage1 = {
+	// from: "me",
+	// text: "Hello to you"
+// };
+// var createdMessage2 = {
+	// from: "me",
+	// text: "Hello to you #2"
+// };
 
-console.log("Creating message: ", createdMessage);
-socket.emit('createdMessage', createdMessage);
-createdMessage.text = "2nd message text";
-socket.emit('createdMessage', createdMessage);
+// socket.emit('createdMessage', createdMessage1);
+// socket.emit('createdMessage', createdMessage2);
