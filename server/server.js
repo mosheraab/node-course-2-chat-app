@@ -11,18 +11,20 @@ var server = http.createServer(app);
 var io = socketIO(server);
 
 io.on('connection', (socket) => {
-	console.log('New user connected', JSON.stringify(socket.handshake.headers, undefined, 2));
+	console.log('New user connected' /*, JSON.stringify(socket.handshake.headers, undefined, 2) */);
 	
 	socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat room'));
 	socket.broadcast.emit('newMessage', generateMessage('Admin', 'New <user> joined the chat room'));
 	
-	socket.on('createdMessage', (message) => {
+	socket.on('createdMessage', (message, callback) => {
 		console.log('Creating new message from client: ', JSON.stringify(message, undefined, 2));
 		socket.broadcast.emit('newMessage', generateMessage( message.from, message.text));
+		if (callback) // check that callback exists before calling it
+			callback('Message sent'); // ack to the client
 	});
 	
 	socket.on('disconnect', () => {
-		console.log('User disconnected', JSON.stringify(socket.handshake.headers, undefined, 2));
+		console.log('User disconnected'/*, JSON.stringify(socket.handshake.headers, undefined, 2)*/);
 	});
 });
 
