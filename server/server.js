@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
 const path = require('path');
-const {generateMessage} = require('./utils/message');
+const {generateMessage, generateLocationMessage} = require('./utils/message');
 
 const publicPath = path.join(__dirname, '..', 'public');
 const port = process.env.PORT || 3000;
@@ -16,13 +16,20 @@ io.on('connection', (socket) => {
 	socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat room'));
 	socket.broadcast.emit('newMessage', generateMessage('Admin', 'New <user> joined the chat room'));
 	
-	socket.on('createdMessage', (message, callback) => {
+	socket.on('newMessage', (message, callback) => {
 		console.log('Creating new message from client: ', JSON.stringify(message, undefined, 2));
 		socket.broadcast.emit('newMessage', generateMessage( message.from, message.text));
 		if (callback) // check that callback exists before calling it
 			callback('Message sent'); // ack to the client
 	});
 	
+	socket.on('newLocationMessage', (message, callback) => {
+		console.log('Creating new message from client: ', JSON.stringify(message, undefined, 2));
+		socket.broadcast.emit('newLocationMessage', generateLocationMessage( message.from, message.latitude, message.longitude));
+		if (callback) // check that callback exists before calling it
+			callback('Location message sent'); // ack to the client
+	});
+
 	socket.on('disconnect', () => {
 		console.log('User disconnected'/*, JSON.stringify(socket.handshake.headers, undefined, 2)*/);
 	});
