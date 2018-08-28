@@ -29,20 +29,25 @@ socket.on('newLocationMessage', function (message) {
 jQuery('#message-form').on('submit', function (event) {
 	event.preventDefault(); // does not work for explorer
 
+	var messageTextBox = jQuery('[name=message]');
+	
 	socket.emit('newMessage', {
 		from: jQuery('[name=user]').val(),
-		text: jQuery('[name=message]').val()
+		text: messageTextBox.val()
 	}, function (data) {
 		// console.log('Ack recieved: ', data);
 		var li = jQuery('<li></li>');
-		li.text(`<me>: ${jQuery('[name=message]').val()}`);
+		li.text(`<me>: ${messageTextBox.val()}`);
 		jQuery('#messages').append(li);	
+		
+		messageTextBox.val('');
 	});
 });
 
 // Sending location
 jQuery('#send-location').on('click', function (event) {
 	if ("geolocation" in navigator) {
+		jQuery('#send-location').attr('disabled', true).text('Sending...');
 		navigator.geolocation.getCurrentPosition(function(position) {
 			socket.emit('newLocationMessage', {
 				from: jQuery('[name=user]').val(),
@@ -50,11 +55,15 @@ jQuery('#send-location').on('click', function (event) {
 				longitude: position.coords.longitude
 			}, function (data) {
 				// console.log('Ack recieved: ', data);
+				jQuery('#send-location').attr('disabled', false).text('Send Location');
 				var li = jQuery('<li></li>');
 				li.text(`<me>: @${position.coords.latitude},${position.coords.longitude}`);
 				
 				jQuery('#messages').append(li);	
 			});
+		}, function () { // if fetch position failed
+				jQuery('#send-location').attr('disabled', false).text('Send Location');
+				alert("Unable to fetch location");
 		});	  
 	} else {
 		return alert("Geolocation - NOT supported");
