@@ -1,5 +1,19 @@
-var socket = io(); // create socket from client to server 	
+var socket = io(); // create socket from client to server 
 
+//
+// FORMATTING
+//
+var formattedPrefix = function (message) {
+	return `[${moment(message.createdAt).format('H:mm:ss')}] ${message.from}:`;
+}	
+
+var formattedMessage = function (message) {
+	return `${formattedPrefix(message)} ${message.text}`;
+}	
+
+//
+// SOCKET EVENTS
+//
 socket.on('connect', function () {
 	console.log('Connected to server');
 });
@@ -11,7 +25,7 @@ socket.on('disconnect', function () {
 socket.on('newMessage', function (message) {
 	console.log('New incoming message event:', message);
 	var li = jQuery('<li></li>');
-	li.text(`${message.from}: ${message.text}`);
+	li.text(formattedMessage(message));
     jQuery('#messages').append(li);	
 })
 
@@ -19,7 +33,7 @@ socket.on('newLocationMessage', function (message) {
 	console.log('New incoming message event:', message);
 	var li = jQuery('<li></li>');
 	var a = jQuery('<a target="_blank">My current location</a>');
-	li.text(`${message.from}: `);
+	li.text(formattedPrefix(message));
     a.attr('href', message.url);
 	li.append(a);
 	jQuery('#messages').append(li);	
@@ -37,7 +51,12 @@ jQuery('#message-form').on('submit', function (event) {
 	}, function (data) {
 		// console.log('Ack recieved: ', data);
 		var li = jQuery('<li></li>');
-		li.text(`<me>: ${messageTextBox.val()}`);
+		var message = { 
+			from: '<me>',
+			text: messageTextBox.val(),
+			createdAt: moment().valueOf()
+		};
+		li.text(formattedMessage(message));
 		jQuery('#messages').append(li);	
 		
 		messageTextBox.val('');
@@ -57,7 +76,13 @@ jQuery('#send-location').on('click', function (event) {
 				// console.log('Ack recieved: ', data);
 				jQuery('#send-location').attr('disabled', false).text('Send Location');
 				var li = jQuery('<li></li>');
-				li.text(`<me>: @${position.coords.latitude},${position.coords.longitude}`);
+				var message = { 
+					from: '<me>',
+//					text: `@${position.coords.latitude},${position.coords.longitude}`,
+					text: '@' + position.coords.latitude + ',' + position.coords.longitude,
+					createdAt: moment().valueOf()
+				};
+				li.text(formattedMessage(message));
 				
 				jQuery('#messages').append(li);	
 			});
@@ -70,8 +95,4 @@ jQuery('#send-location').on('click', function (event) {
 	}
 });
 
-// code for sending message for user (for any generated message)
-var sendMyMessage = function (messageText) {
-
-}
 
