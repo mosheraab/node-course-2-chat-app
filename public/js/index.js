@@ -7,6 +7,25 @@ var formattedTime = function(time) {
 	return moment(time).format('H:mm:ss');
 }
 
+var scrollToBottom = function() {
+	// selectors
+	var messages = jQuery('#messages');
+	var newMessage = messages.children('li:last-child');
+	// Heights
+	var clientHeight = messages.prop('clientHeight');
+	var scrollTop = messages.prop('scrollTop');
+	var scrollHeight = messages.prop('scrollHeight');
+	var newMessageHeight = newMessage.innerHeight();
+	var lastMessageHight = newMessage.prev().innerHeight();
+	
+	if (clientHeight + scrollTop + newMessageHeight + lastMessageHight >= scrollHeight) {
+		// should scroll down
+		messages.scrollTop(scrollHeight);
+	} else {
+		console.log('Do not scroll')
+	}
+}
+
 //
 // SOCKET EVENTS
 //
@@ -26,6 +45,7 @@ socket.on('newMessage', function (message) {
 		createdAt: formattedTime(message.createdAt)
 	});
 	jQuery('#messages').append(html);
+	scrollToBottom();
 })
 
 socket.on('newLocationMessage', function (message) {
@@ -36,6 +56,7 @@ socket.on('newLocationMessage', function (message) {
 		createdAt: formattedTime(message.createdAt)
 	});
 	jQuery('#messages').append(html);	
+	scrollToBottom();
 })
 
 // Sumitting form - sending message
@@ -55,6 +76,7 @@ jQuery('#message-form').on('submit', function (event) {
 			createdAt: formattedTime(moment().valueOf())
 		});
 		jQuery('#messages').append(html);
+		scrollToBottom();
 		
 		messageTextBox.val('');
 	});
@@ -77,6 +99,7 @@ jQuery('#send-location').on('click', function (event) {
 					createdAt: formattedTime(moment().valueOf())
 				});				
 				jQuery('#messages').append(html);
+				scrollToBottom();
 				// console.log('Ack recieved: ', data);
 				jQuery('#send-location').attr('disabled', false).text('Send Location');
 			});
