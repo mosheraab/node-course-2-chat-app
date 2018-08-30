@@ -70,6 +70,10 @@ socket.on('newLocationMessage', function (message) {
 });
 
 socket.on('updateUserList', function (users) {
+	// show room name
+	var header = jQuery('<h3></h3>').text('Room: ' + jQuery.deparam().room);
+	jQuery('#room').html(header);
+	
 	// update user list
 	var ol = jQuery('<ol></ol>');
 	users.forEach(function (user) {
