@@ -31,6 +31,16 @@ var scrollToBottom = function() {
 //
 socket.on('connect', function () {
 	console.log('Connected to server');
+	var params = jQuery.deparam(window.location.search);
+
+	socket.emit('joinRoom', params, function (err) {
+			if (err) {
+				alert(err);
+				window.location.href = '/';
+			} else {
+				console.log('Join - ok');
+			}
+		});	
 });
 
 socket.on('disconnect', function () {
@@ -57,7 +67,18 @@ socket.on('newLocationMessage', function (message) {
 	});
 	jQuery('#messages').append(html);	
 	scrollToBottom();
-})
+});
+
+socket.on('updateUserList', function (users) {
+	// update user list
+	var ol = jQuery('<ol></ol>');
+	users.forEach(function (user) {
+		ol.append(jQuery('<li></li>').text(user));
+	});
+	
+	jQuery('#users').html(ol);
+	console.log('Users in room:', users);
+});
 
 // Sumitting form - sending message
 jQuery('#message-form').on('submit', function (event) {
@@ -66,7 +87,7 @@ jQuery('#message-form').on('submit', function (event) {
 	var messageTextBox = jQuery('[name=message]');
 	
 	socket.emit('newMessage', {
-		from: jQuery('[name=user]').val(),
+		from: jQuery.deparam(window.location.search).name,
 		text: messageTextBox.val()
 	}, function (data) {
 		var template = jQuery('#message-template').html();
@@ -88,7 +109,7 @@ jQuery('#send-location').on('click', function (event) {
 		jQuery('#send-location').attr('disabled', true).text('Sending...');
 		navigator.geolocation.getCurrentPosition(function(position) {
 			socket.emit('newLocationMessage', {
-				from: jQuery('[name=user]').val(),
+				from: jQuery.deparam(window.location.search).name,
 				latitude: position.coords.latitude,
 				longitude: position.coords.longitude
 			}, function (data) {
