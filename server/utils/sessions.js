@@ -48,7 +48,7 @@ class Sessions {
 	getUsersByRoom(room) {
 		// all values
 		var allSessions = (Object.values)  ?
-			allSessions = Object.values(this.sessions) : this.session.objectValues(this.sessions);
+			allSessions = Object.values(this.sessions) : this.objectValues(this.sessions);
 		
 		var roomSessions = 
 			allSessions.filter( (session) => (session.room === room))
