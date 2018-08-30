@@ -33,11 +33,33 @@ class Sessions {
 	getNameById(socketId) {
 		return this.sessions[socketId].name;
 	}
-	
+
+	 
+	objectValues(obj) {
+		var res = [];
+		for (var i in obj) {
+			if (obj.hasOwnProperty(i)) {
+				res.push(obj[i]);
+			}
+		}
+		return res;
+	}	
+
 	getUsersByRoom(room) {
+		// all values
+		var allSessions = (Object.values)  ?
+			allSessions = Object.values(this.sessions) : this.session.objectValues(this.sessions);
+		
 		var roomSessions = 
-			Object.values(this.sessions).filter( (session) => (session.room === room))
+			allSessions.filter( (session) => (session.room === room))
 		var roomUsers = roomSessions.map((session) => session.name)	
+		
+		// var roomUsers = [];
+		// for (var session in this.sessions) {
+			// console.log('session: ', session);
+			// if (session.room == room)
+				// roomUsers.push(session.name);
+		// }
 		return roomUsers;
 	}
 } 
