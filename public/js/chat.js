@@ -51,7 +51,7 @@ socket.on('newMessage', function (message) {
 	var template = jQuery('#message-template').html();
 	var html = Mustache.render(template, { 
 		text: message.text,
-		from: message.from,
+		from: (message.from == jQuery.deparam().name ? 'ME' : message.from),
 		createdAt: formattedTime(message.createdAt)
 	});
 	jQuery('#messages').append(html);
@@ -62,7 +62,7 @@ socket.on('newLocationMessage', function (message) {
 	var template = jQuery('#location-message-template').html();
 	var html = Mustache.render(template, { 
 		url: message.url,
-		from: message.from,
+		from: (message.from == jQuery.deparam().name ? 'ME' : message.from),
 		createdAt: formattedTime(message.createdAt)
 	});
 	jQuery('#messages').append(html);	
@@ -90,15 +90,7 @@ jQuery('#message-form').on('submit', function (event) {
 		from: jQuery.deparam(window.location.search).name,
 		text: messageTextBox.val()
 	}, function (data) {
-		var template = jQuery('#message-template').html();
-		var html = Mustache.render(template, { 
-			text: messageTextBox.val(),
-			from: '<me>',
-			createdAt: formattedTime(moment().valueOf())
-		});
-		jQuery('#messages').append(html);
 		scrollToBottom();
-		
 		messageTextBox.val('');
 	});
 });
@@ -113,15 +105,7 @@ jQuery('#send-location').on('click', function (event) {
 				latitude: position.coords.latitude,
 				longitude: position.coords.longitude
 			}, function (data) {
-				var template = jQuery('#message-template').html();
-				var html = Mustache.render(template, { 
-					from: '<me>',
-					text: '@' + position.coords.latitude + ',' + position.coords.longitude,
-					createdAt: formattedTime(moment().valueOf())
-				});				
-				jQuery('#messages').append(html);
 				scrollToBottom();
-				// console.log('Ack recieved: ', data);
 				jQuery('#send-location').attr('disabled', false).text('Send Location');
 			});
 		}, function () { // if fetch position failed

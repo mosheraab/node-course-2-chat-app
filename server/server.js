@@ -41,15 +41,17 @@ io.on('connection', (socket) => {
 
 	socket.on('newMessage', (message, callback) => {
 		console.log('Creating new message from client: ', JSON.stringify(message, undefined, 2));
-		socket.broadcast.to(sessions.getRoomById(socket.id))
-			.emit('newMessage', generateMessage( sessions.getNameById(socket.id), message.text));
-		if (callback) // check that callback exists before calling it
-			callback('Message sent'); // ack to the client
+		if (typeof message.text == 'string' && message.text.trim().length > 0) {
+			io.to(sessions.getRoomById(socket.id))
+				.emit('newMessage', generateMessage( sessions.getNameById(socket.id), message.text));
+			if (callback) // check that callback exists before calling it
+				callback('Message sent'); // ack to the client
+		}
 	});
 	
 	socket.on('newLocationMessage', (message, callback) => {
 		console.log('Creating new message from client: ', JSON.stringify(message, undefined, 2));
-		socket.broadcast.to(sessions.getRoomById(socket.id))
+		io.to(sessions.getRoomById(socket.id))
 			.emit('newLocationMessage', generateLocationMessage( sessions.getNameById(socket.id), message.latitude, message.longitude));
 		if (callback) // check that callback exists before calling it
 			callback('Location message sent'); // ack to the client
